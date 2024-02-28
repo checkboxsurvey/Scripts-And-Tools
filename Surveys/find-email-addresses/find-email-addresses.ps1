@@ -42,9 +42,9 @@ catch {
 	exit 1
 }
 
-try{
-	# Assuming $response contains the server response as shown above
-	foreach ($item in $result.items) {
+# Assuming $response contains the server response as shown above
+foreach ($item in $result.items) {
+	try{		
 		if ($item.list_item_type -eq "Survey") {
 			Write-Output "Inspecting Survey ID: $($item.id)"
 			$surveyUri = $exportUri -f $item.id
@@ -62,8 +62,7 @@ try{
 			}
 		}
 	}
-}
-catch {
-	Write-Error "Failed to call $($surveyUri)."
-	exit 1
+	catch {
+		Write-Error "Failed to call $($surveyUri)."
+	}
 }
