@@ -1,7 +1,7 @@
 # get-contacts-with-admin-status
 
 This script allows you to scan all contacts within your checkbox installation and return two lists: admins that have logged in within the cutoff period, and non-admins who have logged in within the cutoff period.
-This script as written will only work on-premise but could be easily modified to work with a Checkbox Online acount.
+This script as written will only work on-premise and due to the SQL calls cannot work Online until we have made changes to the API to supply the needed data.
 
 
 ## Usage
