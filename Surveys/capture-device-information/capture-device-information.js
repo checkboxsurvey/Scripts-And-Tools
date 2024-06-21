@@ -17,7 +17,7 @@
                 userAgentField.readOnly = true;
                 userAgentField.hidden = true;
                 
-                // Checkbox Frontend uses AngularJS, we need to force a DOM re-render.
+                // Checkbox Frontend uses Angular, we need to force a DOM re-render.
                 userAgentField.dispatchEvent(new Event('input', { 'bubbles': true, 'cancelable': false }));
             }
 
