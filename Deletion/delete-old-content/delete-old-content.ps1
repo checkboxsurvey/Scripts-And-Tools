@@ -98,7 +98,7 @@ $allOldInvitations = @()
 foreach ($survey in $allSurveys) {
     $surveyId = $survey.id
     $allInvitations = Get-AllItems ([string]::Format($invitationsListUri, $surveyId, '{0}'))
-    $oldInvitations = $allInvitations | Where-Object { $_.created -lt $CutOffDate }
+    $oldInvitations = $allInvitations | Where-Object { [datetime]$_.last_sent -lt $CutOffDate }
 
     foreach ($invitation in $oldInvitations) {
         $invitation | Add-Member -MemberType NoteProperty -Name 'surveyId' -Value $surveyId -Force
@@ -117,7 +117,7 @@ if (Ask-Confirmation "invitations" $allOldInvitations) {
 
 # Process Reports
 $allReports = Get-AllItems $reportsListUri
-$oldReports = $allReports | Where-Object { $_.created -lt $CutOffDate }
+$oldReports = $allReports | Where-Object { [datetime]$_.modified_date -lt $CutOffDate }
 
 if (Ask-Confirmation "reports" $oldReports) {
     foreach ($report in $oldReports) {
@@ -128,7 +128,7 @@ if (Ask-Confirmation "reports" $oldReports) {
 }
 
 # Process Surveys
-$oldSurveys = $allSurveys | Where-Object { $_.created -lt $CutOffDate }
+$oldSurveys = $allSurveys | Where-Object { [datetime]$_.created_date -lt $CutOffDate }
 
 if (Ask-Confirmation "surveys" $oldSurveys) {
     foreach ($survey in $oldSurveys) {
@@ -140,7 +140,7 @@ if (Ask-Confirmation "surveys" $oldSurveys) {
 
 # Process Style Templates
 $allStyleTemplates = Get-AllItems $styleTemplatesUri
-$oldStyleTemplates = $allStyleTemplates | Where-Object { $_.created -lt $CutOffDate -and $_.is_editable -and $_.name -ne "Default" }
+$oldStyleTemplates = $allStyleTemplates | Where-Object { [datetime]$_.created_date -lt $CutOffDate -and $_.is_editable -and $_.name -ne "Default" }
 
 if (Ask-Confirmation "style templates" $oldStyleTemplates) {
     foreach ($template in $oldStyleTemplates) {
