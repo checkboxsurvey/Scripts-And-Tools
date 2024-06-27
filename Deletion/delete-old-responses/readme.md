@@ -1,8 +1,19 @@
 # delete-old-responses
 
+This script is designed to allow you to quickly soft-delete all responses older than a set cutoff date.  In case of many responses, you may prefer to use a SQL query, but otherwise can use the powershell script.
+
+
+# delete-old-responses.sql
+
+This script directly queries the database for all responses older than the cutoff date (which you must set by editing the SQL script) and marks them all for soft deletion.  The data will not be permanently removed until the soft delete cleanup retention period has passed.
+This script can only be used for on-premises installations.
+
+
+# delete-old-responses.ps1
+
 This script allows you to list all survey data older than a custom date and optionally delete it.
 Note that this is a soft delete and the data will not be permanently removed until the soft delete cleanup retention period has passed.
-This script is currently only written for on-premise but could easily be adjusted to work on Online, or both
+This script is currently only written for on-premises but could easily be adjusted to work on Online, or both
 
 ## Usage
 
