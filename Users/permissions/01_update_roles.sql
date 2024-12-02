@@ -135,6 +135,10 @@ SELECT Id as BlackListAdminIdAfterScript FROM @BlackListAdmin
 SELECT Id as NewAdminIdAfterScript FROM @AdminsAfter
 SELECT Id as RespondentIdAfterScript FROM @RespondentsAfter
 
+-- If you would like to modify the existing admins, then comment or remove next query
+INSERT INTO @BlackListAdmin
+SELECT Id FROM @AdminsBefore
+
 -- If you are satisfied with the results uncomment the next section and RUN the script again
 /*
 
