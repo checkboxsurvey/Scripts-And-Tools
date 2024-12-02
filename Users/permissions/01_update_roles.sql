@@ -111,13 +111,12 @@ GROUP BY t.Id;
 
 -- Define new admins AFTER running script
 INSERT INTO @AdminsAfter
-SELECT ab.Id as Id
-FROM @AdminsBefore ab
-JOIN [dbo].[ckbx_IdentityLoginActivity] ila ON ila.UniqueIdentifier = ab.Id
-JOIN @HasAdminAcitivities haa ON haa.Id = ab.Id
-LEFT JOIN @BlackListAdmin bla ON bla.Id = ab.Id
+SELECT haa.Id as Id
+FROM [dbo].[ckbx_IdentityLoginActivity] ila
+JOIN @HasAdminAcitivities haa ON haa.Id = ila.UniqueIdentifier
+LEFT JOIN @BlackListAdmin bla ON bla.Id = ila.UniqueIdentifier
 WHERE ila.LastLogin > @lastLoginDate AND bla.Id IS NULL
-GROUP BY ab.Id
+GROUP BY haa.Id
 
 -- Define all respondents AFTER running script
 INSERT INTO @RespondentsAfter
@@ -135,6 +134,10 @@ SELECT Id as RespondentIdBeforeScript FROM @RespondentsBefore
 SELECT Id as BlackListAdminIdAfterScript FROM @BlackListAdmin
 SELECT Id as NewAdminIdAfterScript FROM @AdminsAfter
 SELECT Id as RespondentIdAfterScript FROM @RespondentsAfter
+
+-- If you would like to modify the existing admins, then comment or remove next query
+INSERT INTO @BlackListAdmin
+SELECT Id FROM @AdminsBefore
 
 -- If you are satisfied with the results uncomment the next section and RUN the script again
 /*
