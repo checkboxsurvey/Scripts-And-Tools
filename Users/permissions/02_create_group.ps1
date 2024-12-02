@@ -101,24 +101,14 @@ function CreateGroup {
 	
 # Function to create group
 function AddMembersToGroup {
-	try {		
-		$uri = [string]::Format($addMembersToFroupUri, $groupId)
-		
-		# Ensure the result is always treated as an array
-		if ($adminUsers -is [array]) {
-			$requestBody = $adminUsers | ConvertTo-Json -Depth 10
-		} else {
-			$requestBody = [string]::Format("[`"{0}`"]", $adminUsers)
+	foreach ($item in $adminUsers) {
+		try{		
+			$uri = [string]::Format($addMembersToFroupUri, $groupId)
+			$requestBody = [string]::Format("[`"{0}`"]", $item)
+			$response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Put -Body $requestBody
+			Write-Output "Added contact: $($item)"
+		} catch {
 		}
-		
-		$response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Put -Body $requestBody -ErrorAction Stop
-		# Check if the response indicates success
-		if ($response.is_success_status_code -eq $false) {
-			throw "Request failed with status code: $($response.status_code) - $($response.reason_phrase)"
-		}
-	} catch {
-		Write-Error "Failed to add members to group Id: $($groupId). Error: $($_.Exception.Message)"
-		exit 1
 	}
 }
 
