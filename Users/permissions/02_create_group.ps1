@@ -101,14 +101,26 @@ function CreateGroup {
 	
 # Function to create group
 function AddMembersToGroup {
+	$correctContacts = @()
 	foreach ($item in $adminUsers) {
 		try{		
 			$uri = [string]::Format($addMembersToFroupUri, $groupId)
 			$requestBody = [string]::Format("[`"{0}`"]", $item)
 			$response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Put -Body $requestBody
+			$correctContacts += $item
 			Write-Output "Added contact: $($item)"
 		} catch {
+			Write-Output "Failed to add a contact: $($item). Error: $($_.Exception.Message)"
 		}
+	}
+	
+	try{
+		$uri = [string]::Format($addMembersToFroupUri, $groupId)
+		$requestBody = @($correctContacts) | ConvertTo-Json
+		$response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Put -Body $requestBody
+		Write-Output "Group updated by $($correctContacts.Count) contacts"
+	} catch {
+		Write-Output "Failed to add all contact to group. Error: $($_.Exception.Message)"
 	}
 }
 
