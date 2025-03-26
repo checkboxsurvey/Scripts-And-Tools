@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Checkbox.LoginSimulator", "Checkbox.LoginSimulator\Checkbox.LoginSimulator.csproj", "{E6997198-4037-4115-9E90-859928BA0A80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6997198-4037-4115-9E90-859928BA0A80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6997198-4037-4115-9E90-859928BA0A80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6997198-4037-4115-9E90-859928BA0A80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6997198-4037-4115-9E90-859928BA0A80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {97DB1E3D-C47A-4905-BA49-41D1C2B98E65}
+	EndGlobalSection
+EndGlobal
