@@ -150,7 +150,13 @@ foreach ($att in $attachments) {
             $bytes = [byte[]]::new($size)
             $reader.GetBytes(0, 0, $bytes, 0, $size)
 
-            $filePath = Join-Path $folder $att.FileName
+            $name = [System.IO.Path]::GetFileNameWithoutExtension($att.FileName)
+            $ext = [System.IO.Path]::GetExtension($att.FileName)
+            $targetName = $att.FileName
+            if (Test-Path (Join-Path $folder $targetName)) {
+                $targetName = "${name}_FileID$($att.FileID)${ext}"
+            }
+            $filePath = Join-Path $folder $targetName
             [System.IO.File]::WriteAllBytes($filePath, $bytes)
             Write-Host "  OK   FileID $($att.FileID) -> $filePath" -ForegroundColor Green
             $exported++
