@@ -131,8 +131,8 @@ foreach ($att in $attachments) {
     }
 
     # Build folder path: files/<SurveyName>/Response-<ResponseID>/
-    $surveyFolder = if ($att.SurveyName) { $att.SurveyName -replace '[\\/:*?"<>|]', '_' } else { "_Orphaned" }
-    $responseFolder = if ($att.ResponseID) { "Response-$($att.ResponseID)" } else { "_NoResponse" }
+    $surveyFolder = if ($att.SurveyName -and $att.SurveyName -isnot [DBNull]) { $att.SurveyName -replace '[\\/:*?"<>|]', '_' } else { "_Orphaned" }
+    $responseFolder = if ($att.ResponseID -and $att.ResponseID -isnot [DBNull]) { "Response-$($att.ResponseID)" } else { "_NoResponse" }
     $folder = Join-Path $filesDir (Join-Path $surveyFolder $responseFolder)
     New-Item -ItemType Directory -Path $folder -Force | Out-Null
 
