@@ -13,7 +13,7 @@ This script can only be used for on-premises installations.
 
 Parameters:
 
-- `[string]$ConnectionString` (required) — the `connectionStrings.default` value from your Checkbox `appsettings.json`
+- `[string]$ConnectionString` (required) — your Checkbox database connection string (see [Finding your connection string](#finding-your-connection-string))
 - `[string]$OutputPath` — output directory (default: `.\CheckboxAttachments`)
 - `[int]$SurveyID` — filter to a specific survey by its ResponseTemplateID (default: all surveys)
 - `[switch]$IncludeSoftDeleted` — also include attachments that have been soft-deleted
@@ -45,6 +45,11 @@ CheckboxAttachments/
 
 - **attachments-report.csv** — full listing of all attachments with metadata (FileID, survey name, response ID, storage type, etc.)
 - **files/** — exported binary files organized by survey name and response
+
+## Finding your connection string
+
+- **Checkbox 8**: `connectionStrings.default` in `appsettings.json` (in the API Core application directory)
+- **Checkbox 7**: `DefaultConnection` in `Web.config` (in the API application directory, under `<connectionStrings>`)
 
 ## Notes
 
