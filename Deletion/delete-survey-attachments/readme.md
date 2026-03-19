@@ -16,6 +16,7 @@ Parameters:
 - `[string]$ConnectionString` (required) — the `connectionStrings.default` value from your Checkbox `appsettings.json`
 - `[int]$SurveyID` (required) — the survey's ResponseTemplateID
 - `[switch]$DryRun` — preview what would be deleted without making any changes
+- `[switch]$IncludeSoftDeleted` — also target attachments that have been soft-deleted
 
 ### Dry run (preview only, no changes)
 

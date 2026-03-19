@@ -15,7 +15,8 @@ param(
     [string]$ConnectionString,
     [Parameter(Mandatory=$true)]
     [int]$SurveyID,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$IncludeSoftDeleted
 )
 
 # Normalize connection string keywords that Invoke-Sqlcmd may not accept
@@ -41,6 +42,7 @@ SELECT
         WHEN 0 THEN 'Database'
         WHEN 1 THEN 'Amazon S3'
     END AS StorageLocation,
+    fu.Deleted AS SoftDeleted,
     r.ResponseID,
     CASE
         WHEN fuf.FileID IS NOT NULL THEN 'File Upload'
@@ -52,7 +54,7 @@ LEFT JOIN ckbx_ItemData_Signature_Files sf ON fu.FileID = sf.FileID
 INNER JOIN ckbx_ResponseAnswers ra ON COALESCE(fuf.AnswerID, sf.AnswerID) = ra.AnswerID
 INNER JOIN ckbx_Response r ON ra.ResponseID = r.ResponseID
 WHERE r.ResponseTemplateID = $SurveyID
-  AND fu.Deleted = 0;
+  AND (fu.Deleted = 0$(if ($IncludeSoftDeleted) { " OR fu.Deleted = 1" }));
 "@
 
 $attachments = @(Invoke-Sqlcmd -ConnectionString $connString -Query $previewQuery)
@@ -65,7 +67,9 @@ if ($attachments.Count -eq 0) {
 # Show what will be deleted
 $mode = if ($DryRun) { "DRY RUN" } else { "DELETE" }
 Write-Host "`n[$mode] Found $($attachments.Count) attachment(s) for SurveyID ${SurveyID}:`n" -ForegroundColor $(if ($DryRun) { "Cyan" } else { "Red" })
-$attachments | Format-Table FileID, FileName, FileSize, StorageLocation, ResponseID, AttachmentType -AutoSize
+$tableColumns = @("FileID", "FileName", "FileSize", "StorageLocation", "ResponseID", "AttachmentType")
+if ($IncludeSoftDeleted) { $tableColumns += "SoftDeleted" }
+$attachments | Format-Table $tableColumns -AutoSize
 
 $totalSize = ($attachments | Measure-Object -Property FileSize -Sum).Sum
 Write-Host "Total size: $([math]::Round($totalSize / 1MB, 2)) MB ($totalSize bytes)" -ForegroundColor Cyan
@@ -106,7 +110,7 @@ BEGIN TRY
     INNER JOIN ckbx_ResponseAnswers ra ON fuf.AnswerID = ra.AnswerID
     INNER JOIN ckbx_Response r ON ra.ResponseID = r.ResponseID
     WHERE r.ResponseTemplateID = $SurveyID
-      AND fu.Deleted = 0;
+      AND (fu.Deleted = 0$(if ($IncludeSoftDeleted) { " OR fu.Deleted = 1" }));
 
     -- Collect FileIDs to delete (signatures)
     SELECT sf.FileID, sf.AnswerID
@@ -116,7 +120,7 @@ BEGIN TRY
     INNER JOIN ckbx_ResponseAnswers ra ON sf.AnswerID = ra.AnswerID
     INNER JOIN ckbx_Response r ON ra.ResponseID = r.ResponseID
     WHERE r.ResponseTemplateID = $SurveyID
-      AND fu.Deleted = 0;
+      AND (fu.Deleted = 0$(if ($IncludeSoftDeleted) { " OR fu.Deleted = 1" }));
 
     -- Remove linking rows
     DELETE fuf

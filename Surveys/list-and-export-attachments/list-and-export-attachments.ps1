@@ -14,7 +14,8 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$ConnectionString,
     [string]$OutputPath = ".\CheckboxAttachments",
-    [int]$SurveyID = 0
+    [int]$SurveyID = 0,
+    [switch]$IncludeSoftDeleted
 )
 
 # Build query — when filtering by survey, use INNER JOINs up the response chain
@@ -42,6 +43,7 @@ SELECT
         WHEN 1 THEN 'Amazon S3'
     END AS StorageLocation,
     DATALENGTH(fu.FileData) AS BinaryDataBytes,
+    fu.Deleted AS SoftDeleted,
     rt.ResponseTemplateID AS SurveyID,
     rt.TemplateName AS SurveyName,
     r.ResponseID,
@@ -60,7 +62,7 @@ $responseJoin ckbx_ResponseAnswers ra ON COALESCE(fuf.AnswerID, sf.AnswerID) = r
 $responseJoin ckbx_Response r ON ra.ResponseID = r.ResponseID
 LEFT JOIN ckbx_ResponseTemplate rt ON r.ResponseTemplateID = rt.ResponseTemplateID
 LEFT JOIN ckbx_Item i ON ra.ItemID = i.ItemID
-WHERE fu.Deleted = 0 $surveyFilter
+WHERE (fu.Deleted = 0$(if ($IncludeSoftDeleted) { " OR fu.Deleted = 1" })) $surveyFilter
 ORDER BY rt.TemplateName, r.ResponseID, fu.CreatedDate DESC;
 "@
 
@@ -85,7 +87,9 @@ if ($attachments.Count -eq 0) {
 
 # Print summary to console
 Write-Host "`nFound $($attachments.Count) attachment(s):`n" -ForegroundColor Green
-$attachments | Format-Table FileID, FileName, FileSize, StorageLocation, SurveyName, ResponseID, AttachmentType -AutoSize
+$tableColumns = @("FileID", "FileName", "FileSize", "StorageLocation", "SurveyName", "ResponseID", "AttachmentType")
+if ($IncludeSoftDeleted) { $tableColumns += "SoftDeleted" }
+$attachments | Format-Table $tableColumns -AutoSize
 
 # Resolve to absolute path using PowerShell's $PWD (not .NET's working directory)
 $OutputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputPath)
@@ -94,7 +98,7 @@ $OutputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromP
 New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
 $csvPath = Join-Path $OutputPath "attachments-report.csv"
 $attachments | Select-Object FileID, FileGuid, FileName, FileType, FileSize, MIMEContentType,
-    CreatedDate, StorageType, StorageLocation, BinaryDataBytes, SurveyID, SurveyName,
+    CreatedDate, StorageType, StorageLocation, BinaryDataBytes, SoftDeleted, SurveyID, SurveyName,
     ResponseID, ResponseGUID, AnswerID, QuestionAlias, AttachmentType |
     Export-Csv -Path $csvPath -NoTypeInformation
 Write-Host "CSV report saved to: $csvPath" -ForegroundColor Cyan

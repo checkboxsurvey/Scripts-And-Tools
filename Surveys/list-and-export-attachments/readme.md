@@ -16,6 +16,7 @@ Parameters:
 - `[string]$ConnectionString` (required) — the `connectionStrings.default` value from your Checkbox `appsettings.json`
 - `[string]$OutputPath` — output directory (default: `.\CheckboxAttachments`)
 - `[int]$SurveyID` — filter to a specific survey by its ResponseTemplateID (default: all surveys)
+- `[switch]$IncludeSoftDeleted` — also include attachments that have been soft-deleted
 
 ### List and export all attachments
 
