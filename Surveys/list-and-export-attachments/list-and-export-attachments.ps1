@@ -7,7 +7,7 @@
 # Usage (single survey):
 #   .\list-and-export-attachments.ps1 -ConnectionString "Server=localhost;Database=CheckboxSurveys;User Id=CheckboxUser;Password=YourPassword" -SurveyID 1012
 #
-# The ConnectionString is the same value as DefaultConnection in your Checkbox appsettings.json.
+# The ConnectionString is the same value as connectionStrings.default in your Checkbox appsettings.json.
 # ============================================================
 
 param(
@@ -122,27 +122,31 @@ foreach ($att in $attachments) {
     $fileQuery = "SELECT FileData FROM ckbx_FileUpload WHERE FileID = $($att.FileID) AND FileData IS NOT NULL"
     $conn = New-Object System.Data.SqlClient.SqlConnection($connString)
     $conn.Open()
-    $cmd = $conn.CreateCommand()
-    $cmd.CommandText = $fileQuery
-    $reader = $cmd.ExecuteReader([System.Data.CommandBehavior]::SequentialAccess)
+    try {
+        $cmd = $conn.CreateCommand()
+        $cmd.CommandText = $fileQuery
+        $reader = $cmd.ExecuteReader([System.Data.CommandBehavior]::SequentialAccess)
 
-    if ($reader.Read() -and -not $reader.IsDBNull(0)) {
-        $size = $reader.GetBytes(0, 0, $null, 0, 0)
-        $bytes = [byte[]]::new($size)
-        $reader.GetBytes(0, 0, $bytes, 0, $size)
+        if ($reader.Read() -and -not $reader.IsDBNull(0)) {
+            $size = $reader.GetBytes(0, 0, $null, 0, 0)
+            $bytes = [byte[]]::new($size)
+            $reader.GetBytes(0, 0, $bytes, 0, $size)
 
-        $filePath = Join-Path $folder $att.FileName
-        [System.IO.File]::WriteAllBytes($filePath, $bytes)
-        Write-Host "  OK   FileID $($att.FileID) -> $filePath" -ForegroundColor Green
-        $exported++
+            $filePath = Join-Path $folder $att.FileName
+            [System.IO.File]::WriteAllBytes($filePath, $bytes)
+            Write-Host "  OK   FileID $($att.FileID) -> $filePath" -ForegroundColor Green
+            $exported++
+        }
+        else {
+            Write-Host "  SKIP FileID $($att.FileID) '$($att.FileName)' - no binary data in FileData column" -ForegroundColor Yellow
+            $skipped++
+        }
+
+        $reader.Close()
     }
-    else {
-        Write-Host "  SKIP FileID $($att.FileID) '$($att.FileName)' - no binary data in FileData column" -ForegroundColor Yellow
-        $skipped++
+    finally {
+        $conn.Close()
     }
-
-    $reader.Close()
-    $conn.Close()
 }
 
 Write-Host "`nDone. Exported: $exported, Skipped: $skipped" -ForegroundColor Cyan

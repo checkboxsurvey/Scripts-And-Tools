@@ -13,7 +13,7 @@ This script can only be used for on-premises installations.
 
 Parameters:
 
-- `[string]$ConnectionString` (required) — the `DefaultConnection` value from your Checkbox `appsettings.json`
+- `[string]$ConnectionString` (required) — the `connectionStrings.default` value from your Checkbox `appsettings.json`
 - `[int]$SurveyID` (required) — the survey's ResponseTemplateID
 - `[switch]$DryRun` — preview what would be deleted without making any changes
 

@@ -13,7 +13,7 @@ This script can only be used for on-premises installations.
 
 Parameters:
 
-- `[string]$ConnectionString` (required) — the `DefaultConnection` value from your Checkbox `appsettings.json`
+- `[string]$ConnectionString` (required) — the `connectionStrings.default` value from your Checkbox `appsettings.json`
 - `[string]$OutputPath` — output directory (default: `.\CheckboxAttachments`)
 - `[int]$SurveyID` — filter to a specific survey by its ResponseTemplateID (default: all surveys)
 

@@ -7,7 +7,7 @@
 # Usage (actual delete):
 #   .\delete-survey-attachments.ps1 -ConnectionString "Server=localhost;Database=CheckboxSurveys;User Id=CheckboxUser;Password=YourPassword" -SurveyID 1012
 #
-# The ConnectionString is the same value as DefaultConnection in your Checkbox appsettings.json.
+# The ConnectionString is the same value as connectionStrings.default in your Checkbox appsettings.json.
 # ============================================================
 
 param(
@@ -102,17 +102,21 @@ BEGIN TRY
     SELECT fuf.FileID, fuf.AnswerID
     INTO #FileUploadFilesToDelete
     FROM ckbx_ItemData_FileUpload_Files fuf
+    INNER JOIN ckbx_FileUpload fu ON fu.FileID = fuf.FileID
     INNER JOIN ckbx_ResponseAnswers ra ON fuf.AnswerID = ra.AnswerID
     INNER JOIN ckbx_Response r ON ra.ResponseID = r.ResponseID
-    WHERE r.ResponseTemplateID = $SurveyID;
+    WHERE r.ResponseTemplateID = $SurveyID
+      AND fu.Deleted = 0;
 
     -- Collect FileIDs to delete (signatures)
     SELECT sf.FileID, sf.AnswerID
     INTO #SignatureFilesToDelete
     FROM ckbx_ItemData_Signature_Files sf
+    INNER JOIN ckbx_FileUpload fu ON fu.FileID = sf.FileID
     INNER JOIN ckbx_ResponseAnswers ra ON sf.AnswerID = ra.AnswerID
     INNER JOIN ckbx_Response r ON ra.ResponseID = r.ResponseID
-    WHERE r.ResponseTemplateID = $SurveyID;
+    WHERE r.ResponseTemplateID = $SurveyID
+      AND fu.Deleted = 0;
 
     -- Remove linking rows
     DELETE fuf
