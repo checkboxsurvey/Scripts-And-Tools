@@ -94,6 +94,16 @@ $attachments | Format-Table $tableColumns -AutoSize
 # Resolve to absolute path using PowerShell's $PWD (not .NET's working directory)
 $OutputPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputPath)
 
+# Check if output directory already has content
+if ((Test-Path $OutputPath) -and (Get-ChildItem $OutputPath | Measure-Object).Count -gt 0) {
+    Write-Host "Output directory already contains files: $OutputPath" -ForegroundColor Yellow
+    $confirm = Read-Host "Existing files may be overwritten. Continue? (yes/no)"
+    if ($confirm -ne "yes") {
+        Write-Host "Aborted." -ForegroundColor Yellow
+        exit
+    }
+}
+
 # Create output directory and export CSV report
 New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
 $csvPath = Join-Path $OutputPath "attachments-report.csv"
