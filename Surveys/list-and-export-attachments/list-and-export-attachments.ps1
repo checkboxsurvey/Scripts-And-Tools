@@ -22,14 +22,12 @@ param(
     [switch]$IncludeSoftDeleted
 )
 
-# Build query — when filtering by survey, use INNER JOINs up the response chain
+# Build query
 if ($SurveyID -gt 0) {
     $surveyFilter = "AND r.ResponseTemplateID = $SurveyID"
-    $responseJoin = "INNER JOIN"
     Write-Host "Filtering to SurveyID: $SurveyID" -ForegroundColor Cyan
 } else {
     $surveyFilter = ""
-    $responseJoin = "LEFT JOIN"
 }
 
 $query = @"
@@ -57,13 +55,12 @@ SELECT
     CASE
         WHEN fuf.FileID IS NOT NULL THEN 'File Upload'
         WHEN sf.FileID IS NOT NULL THEN 'Signature'
-        ELSE 'Orphaned'
     END AS AttachmentType
 FROM ckbx_FileUpload fu
 LEFT JOIN ckbx_ItemData_FileUpload_Files fuf ON fu.FileID = fuf.FileID
 LEFT JOIN ckbx_ItemData_Signature_Files sf ON fu.FileID = sf.FileID
-$responseJoin ckbx_ResponseAnswers ra ON COALESCE(fuf.AnswerID, sf.AnswerID) = ra.AnswerID
-$responseJoin ckbx_Response r ON ra.ResponseID = r.ResponseID
+INNER JOIN ckbx_ResponseAnswers ra ON COALESCE(fuf.AnswerID, sf.AnswerID) = ra.AnswerID
+INNER JOIN ckbx_Response r ON ra.ResponseID = r.ResponseID
 LEFT JOIN ckbx_ResponseTemplate rt ON r.ResponseTemplateID = rt.ResponseTemplateID
 LEFT JOIN ckbx_Item i ON ra.ItemID = i.ItemID
 WHERE (fu.Deleted = 0$(if ($IncludeSoftDeleted) { " OR fu.Deleted = 1" })) $surveyFilter
@@ -131,8 +128,8 @@ foreach ($att in $attachments) {
     }
 
     # Build folder path: files/<SurveyName>/Response-<ResponseID>/
-    $surveyFolder = if ($att.SurveyName -and $att.SurveyName -isnot [DBNull]) { $att.SurveyName -replace '[\\/:*?"<>|]', '_' } else { "_Orphaned" }
-    $responseFolder = if ($att.ResponseID -and $att.ResponseID -isnot [DBNull]) { "Response-$($att.ResponseID)" } else { "_NoResponse" }
+    $surveyFolder = "$($att.SurveyName)" -replace '[\\/:*?"<>|]', '_'
+    $responseFolder = "Response-$($att.ResponseID)"
     $folder = Join-Path $filesDir (Join-Path $surveyFolder $responseFolder)
     New-Item -ItemType Directory -Path $folder -Force | Out-Null
 
