@@ -1,13 +1,17 @@
 # ============================================================
 # List and export all survey attachments
 #
-# Usage (all attachments):
+# Parameters:
+#   -ConnectionString (required)  connectionStrings.default from your Checkbox appsettings.json
+#   -OutputPath                   output directory (default: .\CheckboxAttachments)
+#   -SurveyID                     filter to a specific survey by ResponseTemplateID
+#   -IncludeSoftDeleted           also include attachments marked as soft-deleted
+#
+# Usage:
 #   .\list-and-export-attachments.ps1 -ConnectionString "Server=localhost;Database=CheckboxSurveys;User Id=CheckboxUser;Password=YourPassword"
-#
-# Usage (single survey):
-#   .\list-and-export-attachments.ps1 -ConnectionString "Server=localhost;Database=CheckboxSurveys;User Id=CheckboxUser;Password=YourPassword" -SurveyID 1012
-#
-# The ConnectionString is the same value as connectionStrings.default in your Checkbox appsettings.json.
+#   .\list-and-export-attachments.ps1 -ConnectionString "..." -SurveyID 1012
+#   .\list-and-export-attachments.ps1 -ConnectionString "..." -SurveyID 1012 -IncludeSoftDeleted
+#   .\list-and-export-attachments.ps1 -ConnectionString "..." -OutputPath "C:\Exports\Attachments"
 # ============================================================
 
 param(

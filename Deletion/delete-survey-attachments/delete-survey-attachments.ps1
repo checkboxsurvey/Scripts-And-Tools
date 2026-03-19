@@ -1,13 +1,16 @@
 # ============================================================
 # Delete attachments for a specific survey
 #
-# Usage (dry run — shows what would be deleted, no changes made):
+# Parameters:
+#   -ConnectionString (required)  connectionStrings.default from your Checkbox appsettings.json
+#   -SurveyID         (required)  the survey's ResponseTemplateID
+#   -DryRun                       preview what would be deleted without making changes
+#   -IncludeSoftDeleted           also target attachments marked as soft-deleted
+#
+# Usage:
 #   .\delete-survey-attachments.ps1 -ConnectionString "Server=localhost;Database=CheckboxSurveys;User Id=CheckboxUser;Password=YourPassword" -SurveyID 1012 -DryRun
-#
-# Usage (actual delete):
-#   .\delete-survey-attachments.ps1 -ConnectionString "Server=localhost;Database=CheckboxSurveys;User Id=CheckboxUser;Password=YourPassword" -SurveyID 1012
-#
-# The ConnectionString is the same value as connectionStrings.default in your Checkbox appsettings.json.
+#   .\delete-survey-attachments.ps1 -ConnectionString "..." -SurveyID 1012
+#   .\delete-survey-attachments.ps1 -ConnectionString "..." -SurveyID 1012 -IncludeSoftDeleted -DryRun
 # ============================================================
 
 param(
